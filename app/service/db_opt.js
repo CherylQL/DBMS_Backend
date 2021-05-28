@@ -2,7 +2,7 @@
 const Service = require('egg').Service;
 
 class Db_optService extends Service {
-  async addBooks(item) {
+  async addBook(item) {
     const conn = await this.app.mysql.beginTransaction();
     try {
       await conn.insert('lab5_Books', { BookNo: item.BookNo, BookType: item.BookType, BookName: item.BookName, Publisher: item.Publisher, Year: item.Year, Author: item.Author, Price: item.Price, Total: item.Total, Storage: item.Storage, UpdateTime: this.app.mysql.literals.now });
@@ -12,6 +12,21 @@ class Db_optService extends Service {
       await conn.commit();
       console.log('restotal', res);
       return { status: 200, res };
+    } catch (e) {
+      console.log(e);
+      await conn.rollback();
+      throw e;
+    }
+  }
+  async addBooks(list) {
+    const conn = await this.app.mysql.beginTransaction();
+    try {
+      list.map(item => {
+        this.addBook(item);
+        return item;
+      });
+      await conn.commit();
+      return { status: 200 };
     } catch (e) {
       console.log(e);
       await conn.rollback();
@@ -40,6 +55,10 @@ class Db_optService extends Service {
       await conn.delete('lab5_Books', {
         BookNo: uid,
       });
+      const item = await conn.select('lab5_Books', { where: { BookNo: uid } });
+      const Total_book = await conn.select('lab5_Books', { where: { BookName: item.BookName, Author: item.Author } });
+      for (let i = 0; i < Total_book.length; i++) { await conn.update('lab5_Books', { Total: Total_book.length, Storage: Total_book[i].Storage - 1 }, { where: { BookNo: Total_book[i].BookNo } }); }
+
       const res = await conn.select('lab5_Books');
       await conn.commit();
       return { status: 200, res };

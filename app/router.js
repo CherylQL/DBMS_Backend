@@ -16,4 +16,5 @@ module.exports = app => {
   router.post('/sql/updateBook', jwt, controller.home.updateBook);
   router.post('/sql/borrowBook', jwt, controller.home.borrowBook);
   router.post('/sql/returnBook', jwt, controller.home.returnBook);
+  router.post('/sql/addbooklist', jwt, controller.home.addbooklist);
 };

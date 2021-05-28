@@ -1,6 +1,7 @@
 'use strict';
 
 const Controller = require('egg').Controller;
+const fs = require('fs');
 
 class HomeController extends Controller {
   async index() {
@@ -18,7 +19,39 @@ class HomeController extends Controller {
   }
   async add() {
     const { ctx } = this;
-    const res = await ctx.service.dbOpt.addBooks(ctx.request.body);
+    const res = await ctx.service.dbOpt.addBook(ctx.request.body);
+    if (res.status === 200) {
+      ctx.body = res;
+    } else {
+      ctx.body = { status: 500, errMsg: res };
+    }
+  }
+  async addbooklist() {
+    const { ctx } = this;
+    const stream = await ctx.getFileStream(); // egg中获取上传文件的方法
+    stream.setEncoding('utf-8');
+    const data = stream.read();
+    // console.log(stream);
+    // console.log(data);
+    const insert_list = await data.split(/[()\r\n]/);
+    for (let i = insert_list.length; i >= 0; i--) {
+      if (!insert_list[i]) {
+        insert_list.splice(i, 1);
+      } else {
+        insert_list[i] = insert_list[i].split(',');
+        const tmp_item = {
+          BookNo: insert_list[i][0],
+          BookType: insert_list[i][1],
+          BookName: insert_list[i][2],
+          Publisher: insert_list[i][3],
+          Year: insert_list[i][4],
+          Author: insert_list[i][5],
+          Price: insert_list[i][6],
+        };
+        insert_list[i] = tmp_item;
+      }
+    }
+    const res = await ctx.service.dbOpt.addBooks(insert_list);
     if (res.status === 200) {
       ctx.body = res;
     } else {

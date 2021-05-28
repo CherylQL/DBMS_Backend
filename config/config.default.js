@@ -37,7 +37,7 @@ module.exports = appInfo => {
   };
   config.cors = {
     origin: 'http://localhost:3000',
-    allowHeaders: 'content-type,Authorization',
+    allowHeaders: 'content-type,Authorization,X-Requested-With',
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS,FETCH',
     maxAge: 1728000,
   };
@@ -49,6 +49,10 @@ module.exports = appInfo => {
   };
   config.jwt = {
     secret: '123456',
+  };
+  config.multipart = {
+    mode: 'stream',
+    whitelist: ['.txt'],
   };
 
   return {
