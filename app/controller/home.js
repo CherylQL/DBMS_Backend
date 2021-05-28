@@ -1,7 +1,6 @@
 'use strict';
 
 const Controller = require('egg').Controller;
-const fs = require('fs');
 
 class HomeController extends Controller {
   async index() {
@@ -31,8 +30,6 @@ class HomeController extends Controller {
     const stream = await ctx.getFileStream(); // egg中获取上传文件的方法
     stream.setEncoding('utf-8');
     const data = stream.read();
-    // console.log(stream);
-    // console.log(data);
     const insert_list = await data.split(/[()\r\n]/);
     for (let i = insert_list.length; i >= 0; i--) {
       if (!insert_list[i]) {

@@ -10,7 +10,6 @@ class Db_optService extends Service {
       for (let i = 0; i < Total_book.length; i++) { await conn.update('lab5_Books', { Total: Total_book.length, Storage: Total_book[i].Storage == null ? 1 : Total_book[i].Storage + 1 }, { where: { BookNo: Total_book[i].BookNo } }); }
       const res = await conn.select('lab5_Books');
       await conn.commit();
-      console.log('restotal', res);
       return { status: 200, res };
     } catch (e) {
       console.log(e);
@@ -21,12 +20,13 @@ class Db_optService extends Service {
   async addBooks(list) {
     const conn = await this.app.mysql.beginTransaction();
     try {
-      list.map(item => {
-        this.addBook(item);
-        return item;
-      });
+      let res = [];
+      for (let i = 0; i < list.length; i++) {
+        res = await this.addBook(list[i]);
+      }
+      console.log('reslist', res);
       await conn.commit();
-      return { status: 200 };
+      return { status: 200, result: res.res };
     } catch (e) {
       console.log(e);
       await conn.rollback();
